@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados da busca | BioClicky</title>
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/remedios.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="/js/remedios.js" defer></script>
+</head>
+<body class="home-body remedios-body">
+    <header class="home-header remedios-header">
+        <a href="/" class="home-logo" aria-label="BioClicky - página inicial">
+            <span class="remedios-logo-mark"><ion-icon name="add-outline"></ion-icon></span>
+            <strong>Bio<span>Clicky</span></strong>
+        </a>
+
+        <nav class="home-nav remedios-nav" aria-label="Navegação principal">
+            <a href="/">Buscar</a>
+            <a href="/categorias">Categorias</a>
+            <a href="/farmacias">Farmácias</a>
+            <a href="/#como-funciona">Como funciona</a>
+        </nav>
+
+        <section class="home-header-actions remedios-actions">
+            <section class="home-theme" aria-label="Escolher tema">
+                <button type="button" class="home-theme-option home-theme-light" aria-label="Ativar modo claro">
+                    <ion-icon name="sunny-outline"></ion-icon><span>Claro</span>
+                </button>
+                <button type="button" class="home-theme-option home-theme-dark" aria-label="Ativar modo escuro">
+                    <ion-icon name="moon-outline"></ion-icon><span>Escuro</span>
+                </button>
+            </section>
+            <a href="/login" class="home-login"><ion-icon name="person-outline"></ion-icon><span>Entrar</span></a>
+        </section>
+
+        <button type="button" class="home-mobile-menu remedios-menu" aria-label="Abrir menu">
+            <ion-icon name="menu-outline"></ion-icon>
+        </button>
+    </header>
+
+    <main class="remedios-main">
+        <section class="remedios-intro">
+            <p class="remedios-eyebrow"><span></span> PESQUISA DE MEDICAMENTOS</p>
+            <h1>Encontre o melhor preço para <strong>seu medicamento.</strong></h1>
+            <p class="remedios-subtitle">Compare opções e veja informações de cada medicamento em um só lugar.</p>
+
+            <form action="/remedios" method="GET" class="remedios-search">
+                <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+                <label class="sr-only" for="remedios-busca">Nome do medicamento</label>
+                <input id="remedios-busca" type="search" name="q" value="<%= busca %>" placeholder="Digite o nome do medicamento..." autocomplete="off">
+                <button type="submit">Buscar preços <ion-icon name="arrow-forward-outline"></ion-icon></button>
+            </form>
+        </section>
+
+        <section class="remedios-content">
+            <header class="remedios-results-heading">
+                <section>
+                    <p class="remedios-eyebrow">RESULTADOS</p>
+                    <h2>
+                        <% if (busca) { %>
+                            Resultados para “<%= busca %>”
+                        <% } else { %>
+                            Todos os medicamentos
+                        <% } %>
+                    </h2>
+                    <p class="remedios-count"><%= remedios.length %> medicamento(s) encontrado(s)</p>
+                </section>
+                <a class="remedios-clear" href="/remedios">Limpar busca</a>
+            </header>
+
+            <form action="/remedios" method="GET" class="remedios-filter">
+                <label for="filtro-categoria">Filtrar por categoria</label>
+                <input type="search" name="q" value="<%= busca %>" placeholder="Nome ou laboratório">
+                <select id="filtro-categoria" name="categoria">
+                    <option value="">Todas as categorias</option>
+                    <% categorias.forEach((item) => { %>
+                        <option value="<%= item.nome %>" <%= String(categoria).toLowerCase() === item.nome.toLowerCase() ? "selected" : "" %>><%= item.nome %></option>
+                    <% }) %>
+                </select>
+                <button type="submit">Filtrar</button>
+            </form>
+
+            <% if (remedios.length > 0) { %>
+                <section class="remedios-grid" aria-label="Lista de medicamentos">
+                    <% remedios.forEach((item) => { %>
+                        <article class="remedio-card">
+                            <header class="remedio-card-top">
+                                <span class="remedio-tag"><ion-icon name="shield-checkmark-outline"></ion-icon> Comparação</span>
+                                <span class="remedio-offers"><%= item.ofertas %> ofertas</span>
+                            </header>
+
+                            <figure class="remedio-image">
+                                <% if (item.imagem) { %>
+                                    <img src="<%= item.imagem %>" alt="Embalagem de <%= item.nome %>" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+                                    <ion-icon name="medical-outline" hidden></ion-icon>
+                                <% } else { %>
+                                    <ion-icon name="medical-outline"></ion-icon>
+                                <% } %>
+                            </figure>
+
+                            <section class="remedio-info">
+                                <span class="remedio-category"><%= item.categoria %></span>
+                                <h3><%= item.nome %></h3>
+                                <p><%= item.laboratorio %></p>
+                                <p class="remedio-description"><%= item.descricao %></p>
+
+                                <section class="remedio-price">
+                                    <span>Menor preço informado</span>
+                                    <strong>R$ <%= Number(item.menorPreco).toFixed(2).replace(".", ",") %></strong>
+                                    <small>Farmácia: <%= item.farmacia %></small>
+                                </section>
+
+                                <a class="remedio-compare" href="/remedios?q=<%= encodeURIComponent(item.nome) %>">
+                                    Comparar opções <ion-icon name="arrow-forward-outline"></ion-icon>
+                                </a>
+                            </section>
+                        </article>
+                    <% }) %>
+                </section>
+            <% } else { %>
+                <section class="remedios-empty">
+                    <span><ion-icon name="search-outline"></ion-icon></span>
+                    <h3>Nenhum medicamento encontrado</h3>
+                    <p>Confira se o nome foi digitado corretamente ou tente pesquisar por outro termo.</p>
+                    <a href="/remedios">Ver todos os medicamentos</a>
+                </section>
+            <% } %>
+        </section>
+
+        <aside class="remedios-notice">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <p>O BioClicky compara informações de preços. Não vendemos nem fornecemos medicamentos.</p>
+        </aside>
+    </main>
+
+    <footer class="remedios-footer">
+        <p>© 2026 BioClicky. Feito no Brasil para cuidar melhor.</p>
+    </footer>
+</body>
+</html>
